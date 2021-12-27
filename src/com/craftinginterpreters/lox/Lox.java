@@ -47,11 +47,14 @@ public class Lox {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
-//        //  Print output of the tokenizer.
-//        for (Token token : tokens) {
-//            System.out.println(token);
-//        }
+        //  Print output of the tokenizer.
+        System.out.println("----- TOKENS -----");
+        for (Token token : tokens) {
+            System.out.println(token);
+        }
 
+        //  Generate AST from tokens.
+        System.out.println("----- AST -----");
         Parser parser = new Parser(tokens);
         Expr expression = parser.parse();
 
