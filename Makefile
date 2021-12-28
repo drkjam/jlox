@@ -14,22 +14,26 @@ clean:
 	@echo "cleaning"
 	rm -rf $(CLASSPATH)
 
-.PHONY := build
-build: clean
-	@echo "building"
+.PHONY := buildtools
+buildtools: clean
+	@echo "building tools"
 	mkdir -p $(CLASSPATH)
-	javac -d $(CLASSPATH) $(SRC_PATH)/lox/*.java
 	javac -d $(CLASSPATH) $(SRC_PATH)/tool/*.java
 
-.PHONY := lox
-lox:
-	$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).lox.Lox
-
+.PHONY := build
+build: buildtools
+	@echo "building lox"
+	javac -d $(CLASSPATH) $(SRC_PATH)/lox/*.java
 
 .PHONY := ast
-ast: build
+ast: buildtools
 	@echo building AST classes
 	$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).tool.GenerateAst $(SRC_PATH)/lox
 
+.PHONY := lox
+lox: ast build
+	$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).lox.Lox
+
+
 .PHONY := all
-all: ast
+all: lox
