@@ -3,7 +3,8 @@ SHELL = /bin/bash
 JAVA = /usr/bin/java
 JAVAC = /usr/bin/javac
 SRC_PATH = src/com/craftinginterpreters
-CLASSPATH = out/production/lox
+BUILD_PATH = out
+CLASSPATH = $(BUILD_PATH)/production/lox
 NAMESPACE = com.craftinginterpreters
 
 .PHONY := default
@@ -12,7 +13,7 @@ default: all
 .PHONY := clean
 clean:
 	@echo "cleaning"
-	rm -rf $(CLASSPATH)
+	rm -rf $(BUILD_PATH)
 
 .PHONY := buildtools
 buildtools: clean
