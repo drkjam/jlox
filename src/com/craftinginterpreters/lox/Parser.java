@@ -15,18 +15,39 @@ class Parser {
     }
 
     List<Stmt> parse() {
-        //  program → statement* EOF ;
+        //  program → declaration* EOF ;
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd()) {
-            statements.add(statement());
+            statements.add(declaration());
         }
 
         return statements;
     }
 
-    private Expr expression() {
-        //  expression => equality ;
-        return equality();
+    private Stmt declaration() {
+        //  declaration → varDecl
+        //              | statement ;
+        try {
+            if (match(VAR)) return varDeclaration();
+
+            return statement();
+        } catch (ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
+
+    private Stmt varDeclaration() {
+        //  varDecl → "var" IDENTIFIER ( "=" expression )? ";" ;
+        Token name = consume(IDENTIFIER, "Expect variable name.");
+
+        Expr initializer = null;
+        if (match(EQUAL)) {
+            initializer = expression();
+        }
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initializer);
     }
 
     private Stmt statement() {
@@ -49,6 +70,11 @@ class Parser {
         Expr expr = expression();
         consume(SEMICOLON, "Expect ';' after expression.");
         return new Stmt.Expression(expr);
+    }
+
+    private Expr expression() {
+        //  expression => equality ;
+        return equality();
     }
 
     private Expr equality() {
@@ -116,14 +142,20 @@ class Parser {
     }
 
     private Expr primary() {
-        //  primary → NUMBER | STRING | "true" | "false" | "nil"
-        //          | "(" expression ")" ;
+        //  primary → "true" | "false" | "nil"
+        //          | NUMBER | STRING
+        //          | "(" expression ")"
+        //          | IDENTIFIER ;
         if (match(FALSE)) return new Expr.Literal(false);
         if (match(TRUE)) return new Expr.Literal(true);
         if (match(NIL)) return new Expr.Literal(null);
 
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
+        }
+
+        if (match(IDENTIFIER)) {
+            return new Expr.Variable(previous());
         }
 
         if (match(LEFT_PAREN)) {
