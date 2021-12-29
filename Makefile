@@ -13,28 +13,28 @@ default: all
 .PHONY := clean
 clean:
 	@echo "cleaning"
-	rm -rf $(BUILD_PATH)
+	@rm -rf $(BUILD_PATH)
 
 .PHONY := buildtools
 buildtools: clean
 	@echo "building tools"
-	mkdir -p $(CLASSPATH)
-	javac -d $(CLASSPATH) $(SRC_PATH)/tool/*.java
-
-.PHONY := build
-build: buildtools
-	@echo "building lox"
-	javac -d $(CLASSPATH) $(SRC_PATH)/lox/*.java
+	@mkdir -p $(CLASSPATH)
+	@javac -d $(CLASSPATH) $(SRC_PATH)/tool/*.java
 
 .PHONY := ast
 ast: buildtools
-	@echo building AST classes
-	$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).tool.GenerateAst $(SRC_PATH)/lox
+	@echo "building AST"
+	@$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).tool.GenerateAst $(SRC_PATH)/lox >/dev/null
 
-.PHONY := lox
-lox: ast build
+.PHONY := build
+build: buildtools ast
+	@echo "building lox"
+	@javac -d $(CLASSPATH) $(SRC_PATH)/lox/*.java
+
+.PHONY := interpreter
+interpreter: build
 	$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).lox.Lox
 
 
 .PHONY := all
-all: lox
+all: build
