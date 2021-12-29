@@ -51,10 +51,10 @@ public class Lox {
         List<Token> tokens = scanner.scanTokens();
 
         //  Print output of the tokenizer.
-        System.out.println("----- TOKENS -----");
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+//        System.out.println("----- TOKENS -----");
+//        for (Token token : tokens) {
+//            System.out.println(token);
+//        }
 
         //  Generate AST from tokens.
         Parser parser = new Parser(tokens);
@@ -66,7 +66,7 @@ public class Lox {
 //        System.out.println("----- AST -----");
 //        System.out.println(new AstPrinter().print(expression));
 
-        System.out.println("----- INTERPRETER -----");
+//        System.out.println("----- INTERPRETER -----");
         interpreter.interpret(statements);
     }
 
