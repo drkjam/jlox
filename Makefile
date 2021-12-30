@@ -1,40 +1,52 @@
 SHELL = /bin/bash
 
 JAVA = /usr/bin/java
+JAR = /usr/bin/jar
 JAVAC = /usr/bin/javac
-SRC_PATH = src/com/craftinginterpreters
-BUILD_PATH = out
-CLASSPATH = $(BUILD_PATH)/production/lox
-NAMESPACE = com.craftinginterpreters
 
-.PHONY := default
+NAMESPACE = com.craftinginterpreters
+NAMESPACE_PATH = com/craftinginterpreters
+SRC_PATH = src/$(NAMESPACE_PATH)
+BUILD_PATH = out
+DIST_PATH = dist
+CLASSPATH = $(BUILD_PATH)/production/lox
+
+.PHONY: default
 default: all
 
-.PHONY := clean
+.PHONY: clean
 clean:
-	@echo "cleaning"
-	@rm -rf $(BUILD_PATH)
+	@echo ">>> cleaning"
+	rm -rf $(BUILD_PATH)
+	rm -rf $(DIST_PATH)
 
-.PHONY := buildtools
+.PHONY: buildtools
 buildtools: clean
-	@echo "building tools"
-	@mkdir -p $(CLASSPATH)
-	@javac -d $(CLASSPATH) $(SRC_PATH)/tool/*.java
+	@echo ">>> building tools"
+	mkdir -p $(CLASSPATH)
+	javac -d $(CLASSPATH) $(SRC_PATH)/tool/*.java
 
-.PHONY := ast
+.PHONY: ast
 ast: buildtools
-	@echo "building AST"
-	@$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).tool.GenerateAst $(SRC_PATH)/lox >/dev/null
+	echo ">>> building AST"
+	$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).tool.GenerateAst $(SRC_PATH)/lox >/dev/null
 
-.PHONY := build
+.PHONY: build
 build: buildtools ast
-	@echo "building lox"
-	@javac -d $(CLASSPATH) $(SRC_PATH)/lox/*.java
+	echo ">>> building project"
+	javac -d $(CLASSPATH) $(SRC_PATH)/lox/*.java
 
-.PHONY := interpreter
+.PHONY: interpreter
 interpreter: build
 	$(JAVA) -classpath $(CLASSPATH) $(NAMESPACE).lox.Lox
 
+.PHONY: dist
+dist: build
+	echo ">>> creating jar"
+	mkdir $(DIST_PATH)
+	cd $(CLASSPATH) && $(JAR) cfe jlox.jar $(NAMESPACE).lox.Lox $(NAMESPACE_PATH)/lox/*.class
+	mv $(CLASSPATH)/jlox.jar $(DIST_PATH)
 
-.PHONY := all
-all: build
+
+.PHONY: all
+all: dist
