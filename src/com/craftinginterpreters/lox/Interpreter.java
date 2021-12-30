@@ -20,6 +20,15 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
             @Override
             public String toString() { return "<native fn>"; }
         });
+        globals.define("str", new LoxCallable() {
+            @Override
+            public int arity() { return 1; }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                return arguments.get(0).toString();
+            }
+        });
     }
 
     void interpret(List<Stmt> statements) {
@@ -261,7 +270,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         if (arguments.size() != function.arity()) {
             throw new RuntimeError(expr.paren, "Expected " +
                     function.arity() + " arguments, got " +
-                    arguments.size() + "instead.");
+                    arguments.size() + " instead.");
         }
         return function.call(this, arguments);
     }
